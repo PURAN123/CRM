@@ -4,6 +4,11 @@ from .models import Lead
 from .forms import LeadModelForm
 
 # Create your views here.
+
+def landing_page(request):
+    return render(request, "landing.html")
+
+
 def list_leads(request):
     leads = Lead.objects.all();
     contaxt = {
