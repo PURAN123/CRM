@@ -4,7 +4,8 @@ from django.db.models.signals import post_save
 # Create your models here.
 
 class User(AbstractUser):
-    pass
+    is_organiser = models.BooleanField(default=True)
+    is_agent = models.BooleanField(default=False)
 
 
 class UserProfile(models.Model):
