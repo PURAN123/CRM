@@ -1,3 +1,4 @@
+from shutil import SpecialFileError
 from django.shortcuts import render,redirect, reverse
 from django.views import generic
 from django.core.mail import send_mail
@@ -24,9 +25,39 @@ def landing_page(request):
 
 class LeadListView(LoginRequiredMixin, generic.ListView):
     template_name = "leads/all_leads.html"
-    queryset= Lead.objects.all()
     context_object_name = "leads" # by default the context name is object_list but we can override this
 
+    def get_queryset(self):
+        user = self.request.user
+        if( user.is_organiser ):
+            queryset = Lead.objects.filter(
+                organisation = user.userprofile,
+                agent__isnull=False
+            )
+        else:
+            queryset = Lead.objects.filter(
+                organisation = user.agent.organisation,
+                agent__isnull=False
+            )
+            queryset.filter(agent__user = user)
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super(LeadListView, self).get_context_data(**kwargs)
+        user = self.request.user
+        if( user.is_organiser ):
+            queryset = Lead.objects.filter(
+                organisation = user.userprofile,
+                agent__isnull=True 
+            )
+            context.update({
+                "unassigned_leads" : queryset
+            })
+        
+        return context
+
+
+            
 
 def list_leads(request):
     leads = Lead.objects.all()
@@ -38,8 +69,17 @@ def list_leads(request):
 
 class LeadDetailView(LoginRequiredMixin, generic.DetailView):
     template_name="leads/lead_detail.html"
-    queryset = Lead.objects.all()
     context_object_name='lead'
+
+    def get_queryset(self):
+        user = self.request.user
+        if( user.is_organiser ):
+            queryset = Lead.objects.filter( organisation = user.userprofile )
+        else:
+            queryset = Lead.objects.filter( organisation = user.agent.organisation )
+            queryset.filter(agent__user = user)
+        
+        return queryset
 
 
 def lead_detail(request,pk):
@@ -82,8 +122,11 @@ def create_lead(request):
 
 class LeadUpdateView(LoginRequiredMixin,generic.UpdateView):
     template_name ="leads/lead_update.html"
-    queryset= Lead.objects.all()
     form_class= LeadModelForm
+
+    def get_queryset(self):
+        user = self.request.user
+        return Lead.objects.filter( organisation = user.userprofile )
 
     def get_success_url(self) :
         return reverse("leads:lead-list")
@@ -106,9 +149,12 @@ def lead_update(request, pk):
 
 class LeadDeleteView(LoginRequiredMixin,generic.DeleteView):
     template_name = "leads/lead-delete.html"
-    queryset = Lead.objects.all()
     def get_success_url(self):
         return reverse("leads:lead-list")
+    
+    def get_queryset(self):
+        user = self.request.user
+        return Lead.objects.filter( organisation = user.userprofile ) 
 
 
 def lead_delete(request,pk):
