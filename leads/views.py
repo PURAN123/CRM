@@ -1,10 +1,34 @@
-from shutil import SpecialFileError
-from django.shortcuts import render,redirect, reverse
-from django.views import generic
+
+from ast import Assign
+from agents.mixins import OrganizerAndLoginRequiredMixin
 from django.core.mail import send_mail
+from django.shortcuts import redirect, render, reverse
+from django.views import generic
+
+from .forms import CustomUserCreateForm, LeadModelForm, LeadAssignFrom
 from .models import Lead
-from .forms import LeadModelForm, CustomUserCreateForm
-from django.contrib.auth.mixins import LoginRequiredMixin
+
+class AssignAgentView(OrganizerAndLoginRequiredMixin, generic.FormView):
+    template_name = "leads/assign_agent.html"
+    form_class = LeadAssignFrom
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(AssignAgentView, self).get_form_kwargs(**kwargs)
+        kwargs.update({
+            'request': self.request
+        })
+        return kwargs
+
+    def get_success_url(self):
+        return reverse("leads:lead-list")
+    
+    def  form_valid(self,form):
+        agent = form.cleaned_data["agent"]
+        lead = Lead.objects.get(pk=self.kwargs["pk"])
+        lead.agent = agent
+        lead.save()
+        return super(AssignAgentView, self).form_valid(form)
+    
 
 
 class SignupView(generic.CreateView):
@@ -23,7 +47,7 @@ def landing_page(request):
     return render(request, "landing.html")
 
 
-class LeadListView(LoginRequiredMixin, generic.ListView):
+class LeadListView(OrganizerAndLoginRequiredMixin, generic.ListView):
     template_name = "leads/all_leads.html"
     context_object_name = "leads" # by default the context name is object_list but we can override this
 
@@ -57,8 +81,6 @@ class LeadListView(LoginRequiredMixin, generic.ListView):
         return context
 
 
-            
-
 def list_leads(request):
     leads = Lead.objects.all()
     contaxt = {
@@ -67,7 +89,7 @@ def list_leads(request):
     return render(request,"leads/all_leads.html",context=contaxt)
 
 
-class LeadDetailView(LoginRequiredMixin, generic.DetailView):
+class LeadDetailView(OrganizerAndLoginRequiredMixin, generic.DetailView):
     template_name="leads/lead_detail.html"
     context_object_name='lead'
 
@@ -90,7 +112,7 @@ def lead_detail(request,pk):
     return render(request,"leads/lead_detail.html",context=context)
 
 
-class LeadCreateView(LoginRequiredMixin, generic.CreateView):
+class LeadCreateView(OrganizerAndLoginRequiredMixin, generic.CreateView):
     template_name ="leads/create_lead.html"
     form_class= LeadModelForm
 
@@ -120,7 +142,7 @@ def create_lead(request):
     return render(request, "leads/create_lead.html", context=context)
 
 
-class LeadUpdateView(LoginRequiredMixin,generic.UpdateView):
+class LeadUpdateView(OrganizerAndLoginRequiredMixin,generic.UpdateView):
     template_name ="leads/lead_update.html"
     form_class= LeadModelForm
 
@@ -147,7 +169,7 @@ def lead_update(request, pk):
     return render(request, "leads/lead_update.html", context)
 
 
-class LeadDeleteView(LoginRequiredMixin,generic.DeleteView):
+class LeadDeleteView(OrganizerAndLoginRequiredMixin,generic.DeleteView):
     template_name = "leads/lead-delete.html"
     def get_success_url(self):
         return reverse("leads:lead-list")
