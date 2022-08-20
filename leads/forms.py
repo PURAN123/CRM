@@ -13,7 +13,10 @@ class LeadModelForm(forms.ModelForm):
             "first_name",
             "last_name",
             "age",
-            "agent"
+            "agent",
+            "description",
+            "phone_number",
+            "email",
         )
 
 
@@ -40,3 +43,9 @@ class LeadAssignFrom(forms.Form):
         self.fields["agent"].queryset = queryset
 
 
+class LeadCategoryUpdateForm(forms.ModelForm):
+    class Meta:
+        model= Lead
+        fields=(
+            "category",
+        )

@@ -1,6 +1,6 @@
 
 from django.contrib import admin
-from leads.models import User, Agent, Lead, UserProfile
+from leads.models import User, Agent, Lead, UserProfile, Category
 # Register your models here.
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
@@ -17,3 +17,7 @@ class AgentAdmin(admin.ModelAdmin):
 @admin.register(UserProfile)
 class USerProfileAdmin(admin.ModelAdmin):
     list_display =["user","id"]
+
+@admin.register(Category)
+class USerProfileAdmin(admin.ModelAdmin):
+    list_display =["name","id", "organisation"]

@@ -1,3 +1,4 @@
+from operator import le
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models.signals import post_save
@@ -21,6 +22,11 @@ class Lead(models.Model):
     age = models.IntegerField(default=0)
     organisation = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     agent = models.ForeignKey("Agent", on_delete=models.SET_NULL, blank=True, null=True)
+    category = models.ForeignKey("Category",related_name="leads", on_delete = models.CASCADE,null=True, blank=True)
+    description = models.TextField()
+    date_added = models.DateTimeField(auto_now_add=True)
+    phone_number = models.CharField(max_length=20)
+    email = models.EmailField()
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
@@ -32,6 +38,15 @@ class Agent(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=30)
+    organisation = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+  
 
 
 def userprofile_after_usersave(sender, instance, created, **kwargs):
