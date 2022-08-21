@@ -4,16 +4,23 @@
 
 
 <section class="text-gray-600 body-font">
-    <div class="container px-5 py-24 mx-auto">
+    <div class="container px-5  mx-auto">
       <div class="flex flex-col text-center w-full mb-20">
         <h1 class="sm:text-4xl text-3xl font-medium title-font mb-2 text-gray-900">
             {{ category.name }}
         </h1>
-        <p class="lg:w-2/3 mx-auto leading-relaxed text-base">
+        <p class="lg:w- mx-auto leading-relaxed text-base">
             Here are all types of lead categories under this category.
         </p>
+        <div class= "mt-3 mb-3 ">
+          <a href="{% url 'leads:category-update-category' category.pk %}" class= "text-lg mt-2 text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded mb-3 text-center">Update</a>
+          <a href="{% url 'leads:category-delete-category' category.pk %}" class ="text-lg mt-2 text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded mb-3 text-center">Delete</a>
+        </div>
       </div>
       <div class="lg:w-2/3 w-full mx-auto overflow-auto">
+        <div class = "max-auto border-b-2  mb-5">
+          <a href = "{% url 'leads:category-list' %}" class ="underline font-medium ">Back</a>
+        </div>
         <table class="table-auto w-full text-left whitespace-no-wrap">
           <thead>
             <tr>
@@ -43,7 +50,4 @@
       </div>
     </div>
   </section>
-
-
-
 {% endblock content %}

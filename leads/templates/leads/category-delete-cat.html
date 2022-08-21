@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% load tailwind_filters %}
+{% block content %}
+
+<div class="max-w-lg mx-auto">
+  <div class ="mb-4 border-b-2">
+    <a class= "underline font-medium" href= "{% url 'leads:category-detail' category.id %}">Back</a>
+  </div>
+  <div class= "text-center mb-4">
+    <p class= "text-2xl">Are you sure you want to delete the category?</p>
+  </div>
+  <form method="post">
+    {% csrf_token %}
+    {{ form|crispy}}
+    <button type="submit" class= "w-full text-lg mt-2 text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded mb-3 text-center">Submit</button>
+  </form>
+</div>
+
+{% endblock content %}
